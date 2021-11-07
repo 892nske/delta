@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import pandas as pd
 
 
-app = dash.Dash(__name__)
+app = dash.Dash()
 
 server = app.server
 
