@@ -7,6 +7,9 @@ import pandas as pd
 
 app = dash.Dash(__name__)
 
+server = app.server
+
+
 data_btcusdt = pd.read_csv('BTCUSDT.csv')
 data_btcusd = pd.read_csv('BTCUSD_SPOT.csv')
 
