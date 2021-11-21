@@ -1,6 +1,6 @@
 import dash  
-import dash_core_components as dcc 
-import dash_html_components as html  
+from dash import dcc 
+from dash import html 
 import plotly.graph_objects as go
 import pandas as pd
 
@@ -10,20 +10,20 @@ app = dash.Dash()
 server = app.server
 
 
-data_btcusdt = pd.read_csv('BTCUSDT.csv')
-data_btcusd = pd.read_csv('BTCUSD_SPOT.csv')
+data_spot = pd.read_csv('BTCUSD_spot.csv')
+data_perp = pd.read_csv('BTCUSD_perp.csv')
 
 fig = go.Figure()
-fig.add_trace(go.Scatter(x=data_btcusdt['timestamp'],
-                          y=data_btcusdt['cl'],
+fig.add_trace(go.Scatter(x=data_spot['timestamp'],
+                          y=data_spot['close'],
                           mode='lines',#plotの種類
-                          name='BTCUSDT' #plotの名前
+                          name='spot' #plotの名前
                           ))
                           
-fig.add_trace(go.Scatter(x=data_btcusd['timestamp'],
-                          y=data_btcusd['close'],
+fig.add_trace(go.Scatter(x=data_perp['timestamp'],
+                          y=data_perp['close'],
                           mode='lines',#plotの種類
-                          name='BTCUSD_SPOT' #plotの名前
+                          name='perp' #plotの名前
                           ))
 
 # appという箱に中身を詰める②
