@@ -37,8 +37,8 @@ app.layout = html.Div([
 )
 def update_output(n_clicks):
     # DataFrameでロード
-    data_spot = pd.read_sql(sql="SELECT * FROM bybit_api_spot where symbol = 'BTCUSDT';", con=connection )
-    data_perp = pd.read_sql(sql="SELECT * FROM bybit_api_futures where symbol = 'BTCUSDT';", con=connection )
+    data_spot = pd.read_sql(sql="select * from (select * from bybit_api_spot where symbol = 'BTCUSDT' order by create_dt desc limit 60*100) d order by d.basetime;", con=connection )
+    data_perp = pd.read_sql(sql="select * from (select * from bybit_api_futures where symbol = 'BTCUSDT' order by create_dt desc limit 60*100) d order by d.basetime;", con=connection )
 
     fig = go.Figure(layout=go.Layout(
                 title = 'BTC',
