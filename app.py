@@ -3,6 +3,7 @@ from dash import dcc
 from dash import html 
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 import psycopg2
 
@@ -28,39 +29,45 @@ connection = psycopg2.connect(**connection_config)
 # appという箱に中身を詰める②
 app.layout = html.Div([
     html.Button(id="submit-button", children="表示"),
-    dcc.Graph(id="price_graph")
+    dcc.Graph(id="btc_graph")
 ])
 
 @app.callback(
-    Output("price_graph", "figure"),
+    Output("btc_graph", "figure"),
     [Input("submit-button", 'n_clicks')]
 )
 def update_output(n_clicks):
     # DataFrameでロード
-    data_spot = pd.read_sql(sql="select * from (select * from bybit_api_spot where symbol = 'BTCUSDT' order by create_dt desc limit 60*100) d order by d.basetime;", con=connection )
-    data_perp = pd.read_sql(sql="select * from (select * from bybit_api_futures where symbol = 'BTCUSDT' order by create_dt desc limit 60*100) d order by d.basetime;", con=connection )
+    data_spot = pd.read_sql(sql="select * from (select * from bybit_api_spot where symbol = 'BTCUSDT' order by create_dt desc limit 60*10) d order by d.basetime;", con=connection )
+    data_perp = pd.read_sql(sql="select * from (select * from bybit_api_futures where symbol = 'BTCUSDT' order by create_dt desc limit 60*10) d order by d.basetime;", con=connection )
 
-    fig = go.Figure(layout=go.Layout(
-                title = 'BTC',
-                height = 800, 
-                width = 1300,
-                xaxis = dict(title="時刻"),
-                yaxis = dict(title="価格")
-    ))
+    fig = make_subplots(
+        rows=2, cols=1,
+        shared_xaxes=True,
+        subplot_titles=("price", "dif"),
+        vertical_spacing=0.1,
+        row_heights = [3, 1]
+    )
     fig.add_trace(go.Scatter(x=data_spot['basetime'],
                           y=data_spot['last'],
                           mode='lines',#plotの種類
                           name='spot' #plotの名前
-    ))
+    ),row=1, col=1)
     fig.add_trace(go.Scatter(x=data_perp['basetime'],
                           y=data_perp['last_price'],
                           mode='lines',#plotの種類
                           name='perp' #plotの名前
-    ))
+    ),row=1, col=1)
+    fig.add_trace(go.Scatter(x=data_perp['basetime'],
+                          y=data_perp['last_price']/data_spot['last']-1,
+                          mode='lines',#plotの種類
+                          name='dif' #plotの名前
+    ),row=2, col=1)
+    fig.update_layout(height=800, width=1300)
 
     return fig
 
 
-# 実行用③
+# 実行用
 if __name__=='__main__':
     app.run_server(debug=True)
